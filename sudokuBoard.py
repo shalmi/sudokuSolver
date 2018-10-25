@@ -46,17 +46,32 @@ class board:
         self.cleanPotentialNumbers()
     
     def cleanPotentialNumbers(self):
-        # Start with eachRow
+        self.cleanRows()
+        self.cleanColumns()
+        self.clean3By3s()
+
+    def clean3By3s(self):
+        for eachCube in range(9):
+            usedNums = self.getNumsInThreeByThree(eachCube)
+            upperLeftRow = int((eachCube)/3)*3
+            upperLeftColumn = (eachCube%3)*3
+            for x in range(3):
+                for y in range(3):
+                    self.__AllCells[upperLeftRow+y][upperLeftColumn+x].removeFromPotentials(usedNums)
+
+    
+    def cleanRows(self):
         for row in range(9):
             usedNums = self.numsInRow(row)
             for eachCell in self.__AllCells[row]:
                 eachCell.removeFromPotentials(usedNums)
-        
+    
+    def cleanColumns(self):
         for column in range(9):
             usedNums = self.numsInColumn(column)
             for eachCell in self.getColumn(column):
                 eachCell.removeFromPotentials(usedNums)
-    
+
     def numsInRow(self,row):
         allNums = []
         for eachNum in self.__AllCells[row]:
@@ -76,3 +91,18 @@ class board:
         for x in range(9):
             result.append(self.__AllCells[x][column])
         return result
+    
+    def getNumsInThreeByThree(self,request):
+        # request = which3x3 (0-8)
+        result = []
+        upperLeftRow = int((request)/3)*3
+        upperLeftColumn = (request%3)*3
+        # print("Row:", upperLeftRow)
+        # print("Column:", upperLeftColumn)
+        for x in range(3):
+            for y in range(3):
+                val = self.__AllCells[upperLeftRow+y][upperLeftColumn+x].getValue()
+                if val != " ":
+                    result.append(val)    
+        return result
+        
