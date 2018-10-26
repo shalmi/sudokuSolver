@@ -13,6 +13,7 @@ solution = "35486927129871453661735294843612789587593612492148576376359841254267
 
 
 myBoard = board(puzzleStart)
+myBoard.setSolution(solution)
 myBoard.printTable()
 for x in range(10):
     before = myBoard.outputAsString()
@@ -29,3 +30,4 @@ print(solution)
 print(myBoard.outputAsString() == solution)
 # print( myBoard.getNumsInThreeByThree(8) )
 # print(myBoard.getCell(1,1))
+print(myBoard.checkPuzzle())

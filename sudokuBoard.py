@@ -30,7 +30,15 @@ class board:
             if column >8:
                 column = 0
                 row+=1
-
+    def setSolution(self,inputSolution):
+        row = 0
+        column = 0
+        for eachNum in inputSolution:
+            self.__AllCells[row][column].setAnswerKey(int(eachNum))
+            column+=1
+            if column >8:
+                column = 0
+                row+=1
     def setCell(self,row,column,value):
         # print(row,column,value)
         cell = self.__AllCells[row][column]
@@ -195,4 +203,23 @@ class board:
                 output+=str(eachSquare.getValue())
         return output
 
+    def checkPuzzle(self):
+        """Verifies if the puzzle has any mistakes.
+        I am slightly concerned that there may be 
+        two solutions to some of these puzzles"""
+        AllNums = set(range(1,10))
+        passed = True
         
+        # Start by checking every row for every number
+        currentRow = 0
+        for eachRow in self.__AllCells:
+            numsChecking = []
+            for item in eachRow:
+                numsChecking.append(item.getValue())
+            uniqueNums = list(set(numsChecking) & set(AllNums))
+            if len(uniqueNums) != 9:
+                missingNums = list(set(AllNums)-set(uniqueNums))
+                print("Puzzle failed on row: {}, missing: {}".format(currentRow,missingNums) )
+                passed = False
+            currentRow += 1
+        return passed

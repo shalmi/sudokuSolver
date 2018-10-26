@@ -4,6 +4,8 @@ class cell:
     __currentValue=" "
     __row = -1
     __column = -1
+    __answer = -1
+    __answerKeyExists = False
 
     def __init__(self,row,column):
         self.__row = row
@@ -16,9 +18,19 @@ class cell:
         return self.__row,self.__column
     
     def setValue(self,value):
+        if self.__answerKeyExists:
+            if value != self.__answer:
+                print("ERROR!!! Proposed Value for cell[{}][{}] is {} but the right answer is {} ".format(self.__row,self.__column,value,self.__answer))
+                while(True):
+                    pass
         self.__currentValue = value
-        self.__potentialNumbers = []
-    
+        self.__potentialNumbers = [value,]
+
+
+    def setAnswerKey(self,value):
+        self.__answer = value
+        self.__answerKeyExists = True
+
     def getValue(self):
         return self.__currentValue
 
