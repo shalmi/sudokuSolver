@@ -8,6 +8,10 @@ solution = "86594217314758326993271684569387452178412593625136978447629135852943
 puzzleStart = ".4...8.9...3.75....8.2..4..8.......99.438....52..1.......15.....1.94.37......3..."
 solution = "142638597693475182785291463831564729974382651526719834369157248218946375457823916"
 
+puzzleStart = "..4...2...9.71.5..61..5..4.4.6.....587...6...9...8..6.7....8.1........8....2....."
+solution = "354869271298714536617352948436127895875936124921485763763598412542671389189243657"
+
+
 myBoard = board(puzzleStart)
 myBoard.printTable()
 for x in range(10):
@@ -24,4 +28,4 @@ print(myBoard.outputAsString())
 print(solution)
 print(myBoard.outputAsString() == solution)
 # print( myBoard.getNumsInThreeByThree(8) )
-print(myBoard.getCell(1,1))
+# print(myBoard.getCell(1,1))

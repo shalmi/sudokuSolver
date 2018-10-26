@@ -1,4 +1,5 @@
 from cell import cell
+import time
 
 class board:
     """Represents the Sudoku Board and it's main functions"""
@@ -41,8 +42,10 @@ class board:
         return self.__AllCells[row][column]
 
     def printTable(self):
+        print("~~~~~~~~~~~~~~~~~~")
         for eachRow in self.__AllCells:
            print(eachRow)
+        # time.sleep(.01)
 
     def reduceBoard(self):
         self.cleanPotentialNumbers()
@@ -75,6 +78,7 @@ class board:
         """ removes potentials from cells and then cleans surroundings if a value was set """
         if cell.removeFromPotentials(potentials):
             self.updateSurroundings(cell)
+        self.printTable()
 
     def updateSurroundings(self,cell):
         """If a cell is decided, you need to update all surrounding cells"""
