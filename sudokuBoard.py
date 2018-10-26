@@ -86,7 +86,7 @@ class board:
         """ removes potentials from cells and then cleans surroundings if a value was set """
         if cell.removeFromPotentials(potentials):
             self.updateSurroundings(cell)
-        self.printTable()
+        # self.printTable()
 
     def updateSurroundings(self,cell):
         """If a cell is decided, you need to update all surrounding cells"""
@@ -106,8 +106,9 @@ class board:
         
 
     def cleanRows(self):
-        cellsOfInterest = []
+        
         for row in range(9):
+            cellsOfInterest = []
             usedNums = self.numsInRow(row)
             for eachCell in self.__AllCells[row]:
                 cellsOfInterest.append(eachCell)
@@ -116,8 +117,9 @@ class board:
         self.findUniquePotentialMultiples(cellsOfInterest)
 
     def cleanColumns(self):
-        cellsOfInterest = []
+        
         for column in range(9):
+            cellsOfInterest = []
             usedNums = self.numsInColumn(column)
             for eachCell in self.getColumn(column):
                 cellsOfInterest.append(eachCell)
@@ -146,12 +148,14 @@ class board:
                 return
             # grab the first cell off the list
             myCell = cells.pop(0)
+            # print("myCell: {}".format(myCell))
+            # print("cells: {}".format(cells))
             friends = [] #friends have duplicate Potential Numbers
             chosenPotentials = myCell.getPotentialNumbers()
             # if it only has one potential...ignore it and toss it
             if len(chosenPotentials)<=1:
                 return
-            else:
+            elif len(chosenPotentials) ==2:
                 for otherCell in cells:
                     if otherCell.getPotentialNumbers() == chosenPotentials:
                         friends.append(otherCell)

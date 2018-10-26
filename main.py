@@ -25,8 +25,10 @@ for x in range(10):
 
 print("!!!!!!!!!!!!!!!!!!!")
 myBoard.printTable()
-print(myBoard.outputAsString())
+output = myBoard.outputAsString()
+print(output)
 print(solution)
+print("{}/% correct".format((81-output.count(" "))/81.0))
 print(myBoard.outputAsString() == solution)
 # print( myBoard.getNumsInThreeByThree(8) )
 # print(myBoard.getCell(1,1))

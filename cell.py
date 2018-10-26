@@ -49,7 +49,8 @@ class cell:
 
     def __str__(self):
         output = "currentValue: "+str(self.__currentValue)+"\n"
-        output += "potentialValues: "+str(self.__potentialNumbers)
+        output += "potentialValues: {}\n".format(self.__potentialNumbers)
+        output += "row: {}, col: {}".format(self.__row,self.__column)
         return output
     
     # def printOut(self):
