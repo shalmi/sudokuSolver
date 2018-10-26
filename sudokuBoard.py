@@ -64,8 +64,8 @@ class board:
         self.clean3By3s()
 
     def clean3By3s(self):
-        cellsOfInterest = []
         for eachCube in range(9):
+            cellsOfInterest = []
             allNums = range(1,10)
             usedNums = self.getNumsInThreeByThree(eachCube)
             unusedNums = list(set(allNums)-set(usedNums))
