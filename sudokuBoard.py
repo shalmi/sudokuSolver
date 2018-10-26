@@ -51,26 +51,47 @@ class board:
         self.clean3By3s()
 
     def clean3By3s(self):
+        cellsOfInterest = []
         for eachCube in range(9):
             usedNums = self.getNumsInThreeByThree(eachCube)
             upperLeftRow = int((eachCube)/3)*3
             upperLeftColumn = (eachCube%3)*3
             for x in range(3):
                 for y in range(3):
+                    cellsOfInterest.append(self.__AllCells[upperLeftRow+y][upperLeftColumn+x])
                     self.__AllCells[upperLeftRow+y][upperLeftColumn+x].removeFromPotentials(usedNums)
+        self.findUniquePotentials(cellsOfInterest)
 
-    
     def cleanRows(self):
+        cellsOfInterest = []
         for row in range(9):
             usedNums = self.numsInRow(row)
             for eachCell in self.__AllCells[row]:
+                cellsOfInterest.append(eachCell)
                 eachCell.removeFromPotentials(usedNums)
+        self.findUniquePotentials(cellsOfInterest)
     
     def cleanColumns(self):
+        cellsOfInterest = []
         for column in range(9):
             usedNums = self.numsInColumn(column)
             for eachCell in self.getColumn(column):
+                cellsOfInterest.append(eachCell)
                 eachCell.removeFromPotentials(usedNums)
+        self.findUniquePotentials(cellsOfInterest)
+
+    def findUniquePotentials(self,cells):
+        for iteration in range(len(cells)):
+            myCell = cells.pop(0)
+            chosenPotentials = myCell.getPotentialNumbers()
+            otherPotentials = []
+            for eachCell in cells:
+                otherPotentials = list(set(otherPotentials) | set(eachCell.getPotentialNumbers()))
+            uniquePotentials = list(set(chosenPotentials)-set(otherPotentials))
+            if len(uniquePotentials) == 1:
+                myCell.setValue(uniquePotentials[0])
+            cells.append(myCell)
+
 
     def numsInRow(self,row):
         allNums = []
@@ -105,4 +126,12 @@ class board:
                 if val != " ":
                     result.append(val)    
         return result
+    
+    def outputAsString(self):
+        output = ""
+        for row in self.__AllCells:
+            for eachSquare in row:
+                output+=str(eachSquare.getValue())
+        return output
+
         
