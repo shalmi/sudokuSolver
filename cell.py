@@ -2,9 +2,19 @@ class cell:
     """Represents a single number space or cell in Sudoku"""
     __potentialNumbers = range(1,10)
     __currentValue=" "
+    __row = -1
+    __column = -1
+
+    def __init__(self,row,column):
+        self.__row = row
+        self.__column = column
+    
     def getPotentialNumbers(self):
         return self.__potentialNumbers
 
+    def getCoordinates(self):
+        return self.__row,self.__column
+    
     def setValue(self,value):
         self.__currentValue = value
         self.__potentialNumbers = []
@@ -13,12 +23,21 @@ class cell:
         return self.__currentValue
 
     def removeFromPotentials(self,numsToRemove):
+        """ Removes the "numsToRemove" from the list of potentials.\n
+        numsToRemove must be a list.\n
+        returns True if the cell is decided. False if more work is needed"""
         self.__potentialNumbers = list(set(self.__potentialNumbers) - set(numsToRemove))
         if len(self.__potentialNumbers) == 1:
             self.setValue(self.__potentialNumbers[0])
+            return True
+        return False
 
     def __repr__(self):
         return str(self.__currentValue)
 
     def __str__(self):
-        return self.__currentValue
+        output = "currentValue: "+str(self.__currentValue)+"\n"
+        output += "potentialValues: "+str(self.__potentialNumbers)
+        return output
+    
+    # def printOut(self):

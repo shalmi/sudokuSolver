@@ -10,7 +10,7 @@ class board:
         for eachRow in range(9):
             row = []
             for eachCell in range(9):
-                row.append(cell())
+                row.append(cell(eachRow,eachCell))
             self.__AllCells.append(row)
         self.__setWholeTable(puzzleStart)
 
@@ -32,7 +32,9 @@ class board:
 
     def setCell(self,row,column,value):
         # print(row,column,value)
-        self.__AllCells[row][column].setValue(value)
+        cell = self.__AllCells[row][column]
+        cell.setValue(value)
+        self.updateSurroundings(cell)
 
     def getCell(self,row,column):
         # print(row,column,value)
@@ -53,14 +55,43 @@ class board:
     def clean3By3s(self):
         cellsOfInterest = []
         for eachCube in range(9):
+            allNums = range(1,10)
             usedNums = self.getNumsInThreeByThree(eachCube)
+            unusedNums = list(set(allNums)-set(usedNums))
             upperLeftRow = int((eachCube)/3)*3
             upperLeftColumn = (eachCube%3)*3
             for x in range(3):
                 for y in range(3):
-                    cellsOfInterest.append(self.__AllCells[upperLeftRow+y][upperLeftColumn+x])
-                    self.__AllCells[upperLeftRow+y][upperLeftColumn+x].removeFromPotentials(usedNums)
-        self.findUniquePotentials(cellsOfInterest)
+                    thisCell = self.__AllCells[upperLeftRow+y][upperLeftColumn+x]
+                    cellsOfInterest.append(thisCell)
+                    self.removePotentialsFromCell(thisCell,usedNums)
+            self.findUniquePotentials(cellsOfInterest)
+            # next go through all the unusedNums
+                #see if from all of the cells if only one has the unused num
+                    #set it
+        
+
+    def removePotentialsFromCell(self,cell,potentials):
+        """ removes potentials from cells and then cleans surroundings if a value was set """
+        if cell.removeFromPotentials(potentials):
+            self.updateSurroundings(cell)
+
+    def updateSurroundings(self,cell):
+        """If a cell is decided, you need to update all surrounding cells"""
+        row,column = cell.getCoordinates()
+        value = cell.getValue()
+        for eachCell in self.__AllCells[row]:
+            self.removePotentialsFromCell(eachCell,[value,])
+        for eachRow in self.__AllCells:
+            self.removePotentialsFromCell(eachRow[column],[value,])
+        upperLeftRow = int((row)/3)*3
+        upperLeftColumn = int(column/3)*3
+        for x in range(3):
+            for y in range(3):
+                thisCell = self.__AllCells[upperLeftRow+y][upperLeftColumn+x]
+                self.removePotentialsFromCell(thisCell,[value,])
+
+        
 
     def cleanRows(self):
         cellsOfInterest = []
@@ -68,17 +99,20 @@ class board:
             usedNums = self.numsInRow(row)
             for eachCell in self.__AllCells[row]:
                 cellsOfInterest.append(eachCell)
-                eachCell.removeFromPotentials(usedNums)
+                self.removePotentialsFromCell(eachCell,usedNums)
         self.findUniquePotentials(cellsOfInterest)
-    
+        self.findUniquePotentialMultiples(cellsOfInterest)
+
     def cleanColumns(self):
         cellsOfInterest = []
         for column in range(9):
             usedNums = self.numsInColumn(column)
             for eachCell in self.getColumn(column):
                 cellsOfInterest.append(eachCell)
-                eachCell.removeFromPotentials(usedNums)
+                self.removePotentialsFromCell(eachCell,usedNums)
+
         self.findUniquePotentials(cellsOfInterest)
+        self.findUniquePotentialMultiples(cellsOfInterest)
 
     def findUniquePotentials(self,cells):
         for iteration in range(len(cells)):
@@ -90,7 +124,30 @@ class board:
             uniquePotentials = list(set(chosenPotentials)-set(otherPotentials))
             if len(uniquePotentials) == 1:
                 myCell.setValue(uniquePotentials[0])
+                self.updateSurroundings(myCell)
             cells.append(myCell)
+
+    def findUniquePotentialMultiples(self,cells):
+        while True:
+            # make sure that the list has more things in it
+            if len(cells) == 0:
+                return
+            # grab the first cell off the list
+            myCell = cells.pop(0)
+            friends = [] #friends have duplicate Potential Numbers
+            chosenPotentials = myCell.getPotentialNumbers()
+            # if it only has one potential...ignore it and toss it
+            if len(chosenPotentials)<=1:
+                return
+            else:
+                for otherCell in cells:
+                    if otherCell.getPotentialNumbers() == chosenPotentials:
+                        friends.append(otherCell)
+                        cells.remove(otherCell)
+                if len(friends) == (len(chosenPotentials)-1):
+                    #winner winner chicken dinner
+                    for otherCell in cells:
+                        self.removePotentialsFromCell(otherCell,chosenPotentials)
 
 
     def numsInRow(self,row):
