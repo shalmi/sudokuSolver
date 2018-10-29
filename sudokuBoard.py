@@ -146,7 +146,8 @@ class board:
         # self.printTable()
 
     def updateSurroundings(self,cell):
-        """If a cell is decided, you need to update all surrounding cells"""
+        """If a cell is decided, you need to update all surrounding cells\n
+            Works on columns,rows, and surrounding 3x3"""
         row,column = cell.getCoordinates()
         value = cell.getValue()
         for eachCell in self.__AllCells[row]:
@@ -159,8 +160,73 @@ class board:
             for y in range(3):
                 thisCell = self.__AllCells[upperLeftRow+y][upperLeftColumn+x]
                 self.removePotentialsFromCell(thisCell,[value,])
+# Two functions to make
+# 1. Checks to see if each miniAisle contains a potential that doest exist in the other 2 miniAisles
+#       from the two other rubiks
+#       If it does then It can remove that potential from the original miniAisle's rubik
+# 2. Check if miniAisle contains a potential that doesnt exist in the other 2 miniAisles of the SAME rubik
+#      if so, remove that potential from the other miniAisles on that Aisle
+# 3. MAKE SURE TO DO THE SAME THING FOR COLUMNS FOR BOTH!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# 
+# Check if miniAisle contains a potential that doesnt exist in the other 2 miniAisles of the SAME rubik
+#      if so, remove that potential from the other miniAisles on that Aisle  
+    def checkCubesForRowsWithUniquePotentials(self):
 
-        
+        ThreeByThrees = self.getThreeByThreesByRows()
+        for eachRubik in range(3):
+            oneRubik = ThreeByThrees[3+eachRubik]
+            potents = self.AislesOfPotentialsFromRubik(oneRubik)
+            row = -1
+            for eachPotentList in potents:
+                row+=1
+                # eachPotentList also represents each row of "eachRubik" 
+                potentsCopy = potents.copy()
+                potentsCopy.remove(eachPotentList)
+                UniquePotentials = list(set(eachPotentList) - (set(potentsCopy[0]) | set(potentsCopy[1]) )  )
+                if(len(UniquePotentials) > 0):
+                    print("Found a Unique Potential at Rubik: {}, Row: {}. Potential(s) Found: {}".format(eachRubik+3,row,UniquePotentials))
+            # return potents
+            print(potents)
+
+    def AislesOfPotentialsFromRubik(self,rubik):
+        """receieves a rubik aka 3x3 in the form of:\n
+        [[0,1,2],[3,4,5],[6,7,8]]\n
+        and returns 3 Lists of Potentials"""
+
+        ListOfPotentials = []
+        for eachRow in rubik:
+            potentials = []
+            for eachCell in eachRow:
+                potentials = list(set(potentials) | set(eachCell.getPotentialNumbers()))
+            ListOfPotentials.append(potentials)
+        return ListOfPotentials
+
+    def getThreeByThreesByRows(self):
+        """Different than getThreeByThree(request)
+        returns 9 Lists of 3 Lists"""
+        ListOf3x3s = []
+        # For each set of Three Full Rows Or Columns
+        for SetOfThreeRowsOrColumns in range(3):
+            # Init Variables for each code to run on each 3x9
+            aisle = 3*SetOfThreeRowsOrColumns #0,3,or 6
+            for each3x3 in range(3):
+                ThreeByThree = []
+                parseStart = each3x3*3
+                parseEnd = parseStart+3
+                for eachMiniAisle in range(3):
+                    ThreeByThree.append(self.getRow(aisle+eachMiniAisle)[parseStart:parseEnd])
+                ListOf3x3s.append(ThreeByThree)
+        return ListOf3x3s
+        # HOW TO EASILY USE
+        # ThreeByThrees = myBoard.getThreeByThreesByRows()
+        # for x in ThreeByThrees:
+        #     for y in x:
+        #         print(y)
+        #     print("~~~~~~~~~")
+
+
+
 
     def cleanRows(self):
         for row in range(9):
@@ -171,8 +237,8 @@ class board:
                 self.removePotentialsFromCell(eachCell,usedNums)
         self.findUniquePotentials(cellsOfInterest)
         self.findUniquePotentialMultiples(cellsOfInterest)
+
     def cleanColumns(self):
-        
         for column in range(9):
             cellsOfInterest = []
             usedNums = self.numsInColumn(column)
@@ -241,6 +307,9 @@ class board:
         for x in range(9):
             result.append(self.__AllCells[x][column])
         return result
+    
+    def getRow(self,row):
+        return self.__AllCells[row]
     
     def getNumsInThreeByThree(self,request):
         # request = which3x3 (0-8)
