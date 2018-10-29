@@ -55,13 +55,18 @@ class board:
            print(eachRow)
         # time.sleep(.01)
 
-    def reduceBoard(self):
-        self.cleanPotentialNumbers()
-    
     def cleanPotentialNumbers(self):
         self.cleanRows()
         self.cleanColumns()
         self.clean3By3s()
+        print("(~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~)")
+        # search for naked Triplets on all Rows
+        for eachRow in self.__AllCells:
+            self.searchForNakedTripletsAdvanced(eachRow)
+
+        for x in range(9):
+            self.searchForNakedTripletsAdvanced(self.getColumn(x))
+            self.searchForNakedTripletsAdvanced(self.getThreeByThree(x))
 
     def clean3By3s(self):
         for eachCube in range(9):
@@ -80,7 +85,59 @@ class board:
             # next go through all the unusedNums
                 #see if from all of the cells if only one has the unused num
                     #set it
-        
+    
+    def searchForNakedTripletsAdvanced(self,cells):
+        """Naked Triplets where not all cells have all 3"""
+
+        # row,column = cells[0].getCoordinates()
+        # print("searchForNakedTripletsAdvanced WAS HIT:[{}][{}]".format(row,column))
+
+        # Make a Major copy to not destroy cells
+        # cellsMajorCopy = cells.copy()
+        triplet = 3
+        cellsMajorCopy = []
+        # Now parse out the cells we dont need such as: 
+        for eachCell in cells:
+            # Cells that have already been found
+            if not eachCell.isFound():
+                # Cells with more than 3 potentials
+                if len(eachCell.getPotentialNumbers())<=triplet:
+                    cellsMajorCopy.append(eachCell)
+            # That should leave us with cells that have a potential of 2 or 3
+        if len(cellsMajorCopy)<=triplet:
+            return #we cant do 3s compliment with only 3 items
+        print("cellsMajoryCopy: {}".format(cellsMajorCopy))
+        for lilCell in cellsMajorCopy:
+            print(lilCell)
+        for cellChooser in range(len(cellsMajorCopy)):
+            # copy the list again as we will be destructive
+            cellsCopy = cellsMajorCopy.copy()
+            myCell = cellsCopy.pop(cellChooser)
+            mainPotentialNums = myCell.getPotentialNumbers()
+            for numOfSibling1s in range(len(cellsCopy)):
+                potentialFirstSibling = cellsCopy.pop()
+                setOfNums2 = potentialFirstSibling.getPotentialNumbers()
+                combinedPotentials = list(set(setOfNums2) | set(mainPotentialNums))
+                if len(combinedPotentials)>triplet:
+                    continue #leave this sibling behind!
+                    print("THIS LINE SHOULD NEVER BE PRINTED...IF IT IS SOMETHING WENT WRONG.")
+                else:
+                    # Lets find a 2nd sibling (aka 3rd cell)
+                    if len(cellsCopy) == 0:
+                        continue
+                    ListOfPotentialThirdSiblings = cellsCopy.copy()
+                    for numOfSiblings2 in range(len(ListOfPotentialThirdSiblings)):
+                        potentialSecondSibling = ListOfPotentialThirdSiblings.pop()
+                        setOfNums3 = potentialSecondSibling.getPotentialNumbers()
+                        threeCombinedPotentials  = list(set(combinedPotentials) | set(setOfNums3))
+                        if len(threeCombinedPotentials) == triplet:
+                            print("WE DID IT!!!!!!!!!!!!!!!")
+                            print(threeCombinedPotentials)
+                            print(myCell,potentialFirstSibling,potentialSecondSibling)
+                        else:
+                            continue
+
+
 
     def removePotentialsFromCell(self,cell,potentials):
         """ removes potentials from cells and then cleans surroundings if a value was set """
@@ -106,7 +163,6 @@ class board:
         
 
     def cleanRows(self):
-        
         for row in range(9):
             cellsOfInterest = []
             usedNums = self.numsInRow(row)
@@ -115,7 +171,6 @@ class board:
                 self.removePotentialsFromCell(eachCell,usedNums)
         self.findUniquePotentials(cellsOfInterest)
         self.findUniquePotentialMultiples(cellsOfInterest)
-
     def cleanColumns(self):
         
         for column in range(9):
@@ -142,27 +197,28 @@ class board:
             cells.append(myCell)
 
     def findUniquePotentialMultiples(self,cells):
+        cellsSafeCopy = cells.copy()
         while True:
             # make sure that the list has more things in it
-            if len(cells) == 0:
+            if len(cellsSafeCopy) == 0:
                 return
             # grab the first cell off the list
-            myCell = cells.pop(0)
+            myCell = cellsSafeCopy.pop(0)
             # print("myCell: {}".format(myCell))
-            # print("cells: {}".format(cells))
+            # print("cellsSafeCopy: {}".format(cellsSafeCopy))
             friends = [] #friends have duplicate Potential Numbers
             chosenPotentials = myCell.getPotentialNumbers()
             # if it only has one potential...ignore it and toss it
             if len(chosenPotentials)<=1:
                 return
             elif len(chosenPotentials) ==2:
-                for otherCell in cells:
+                for otherCell in cellsSafeCopy:
                     if otherCell.getPotentialNumbers() == chosenPotentials:
                         friends.append(otherCell)
-                        cells.remove(otherCell)
+                        cellsSafeCopy.remove(otherCell)
                 if len(friends) == (len(chosenPotentials)-1):
                     #winner winner chicken dinner
-                    for otherCell in cells:
+                    for otherCell in cellsSafeCopy:
                         self.removePotentialsFromCell(otherCell,chosenPotentials)
 
 
@@ -199,7 +255,17 @@ class board:
                 if val != " ":
                     result.append(val)    
         return result
-    
+    def getThreeByThree(self,request):
+        # request = which3x3 (0-8)
+        result = []
+        upperLeftRow = int((request)/3)*3
+        upperLeftColumn = (request%3)*3
+        # print("Row:", upperLeftRow)
+        # print("Column:", upperLeftColumn)
+        for x in range(3):
+            for y in range(3):
+                result.append(self.__AllCells[upperLeftRow+y][upperLeftColumn+x])
+        return result
     def outputAsString(self):
         output = ""
         for row in self.__AllCells:

@@ -26,6 +26,8 @@ class cell:
         self.__currentValue = value
         self.__potentialNumbers = [value,]
 
+    def isFound(self):
+        return (self.__currentValue != " ")
 
     def setAnswerKey(self,value):
         self.__answer = value
