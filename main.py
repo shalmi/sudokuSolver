@@ -49,4 +49,4 @@ print(myBoard.checkPuzzle())
 # for x in a:
 #     print(x)
 # myBoard.checkAislesForMiniAislesWithUniquePotentials()
-# print(myBoard.getCell(4,2))
+print(myBoard.getCell(4,1))

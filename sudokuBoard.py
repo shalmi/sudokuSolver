@@ -173,27 +173,34 @@ class board:
 # 3. MAKE SURE TO DO THE SAME THING FOR COLUMNS FOR BOTH!
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
+    def getPuzzleByMiniRows(self,rowOrColumn):
+        """returns the puzzle by rows or columns but with 
+        each aisle split into 3 sets of 3.\n
+        rowOrColumn can equal "row" or "column"""
+
+        wholePuzzle = []
+        if rowOrColumn == "row":
+            wholePuzzle = self.__AllCells
+        elif rowOrColumn == "column":
+            for x in range(9):
+                wholePuzzle.append(self.getColumn(x))
+        PuzzleByMiniRows = []
+        for eachAisle in wholePuzzle:
+            SetOfMiniRows = []
+            SetOfMiniRows.append(eachAisle[0:3])
+            SetOfMiniRows.append(eachAisle[3:6])
+            SetOfMiniRows.append(eachAisle[6:9])
+            PuzzleByMiniRows.append(SetOfMiniRows)
+        return PuzzleByMiniRows
+
+
 # Check if miniAisle contains a potential that doesnt exist in the other 2 miniAisles of the aisle
 #      if so, remove that potential from the other miniAisles on that cube  
     def checkAislesForMiniAislesWithUniquePotentials(self):
         """ Read checkCubesForRowsWithUniquePotentials() """
-        # GetRowByMiniRows()
-
-        MAKE THIS A FUNCTION THEN MAKE THIS FUNCTION WORK WITH COLUMNS TOO!!!!!!!
-        PuzzleByMiniRows = []
-        for eachRow in self.__AllCells:
-            SetOfMiniRows = []
-            SetOfMiniRows.append(eachRow[0:3])
-            SetOfMiniRows.append(eachRow[3:6])
-            SetOfMiniRows.append(eachRow[6:9])
-            PuzzleByMiniRows.append(SetOfMiniRows)
-
-        # print(PuzzleByMiniRows)
-
-        # ThreeByThreesByRow = self.getThreeByThreesByRows()
-        # ThreeByThreesByColumn = self.getThreeByThreesByColumns()
         sudokuByRowsAndColumns = []
-        sudokuByRowsAndColumns.append(PuzzleByMiniRows)
+        sudokuByRowsAndColumns.append(self.getPuzzleByMiniRows("row"))
+        sudokuByRowsAndColumns.append(self.getPuzzleByMiniRows("column"))
 
         for sudokuByAisleOfAisles in sudokuByRowsAndColumns:
             for eachSubAisleOfAisle in range(3):
