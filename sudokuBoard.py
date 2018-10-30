@@ -61,12 +61,16 @@ class board:
         self.clean3By3s()
         print("(~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~)")
         # search for naked Triplets on all Rows
-        for eachRow in self.__AllCells:
-            self.searchForNakedTripletsAdvanced(eachRow)
+        # for eachRow in self.__AllCells:
+        #     self.searchForNakedTripletsAdvanced(eachRow)
 
-        for x in range(9):
-            self.searchForNakedTripletsAdvanced(self.getColumn(x))
-            self.searchForNakedTripletsAdvanced(self.getThreeByThree(x))
+        # for x in range(9):
+        #     self.searchForNakedTripletsAdvanced(self.getColumn(x))
+        #     self.searchForNakedTripletsAdvanced(self.getThreeByThree(x))
+        
+        # check Cubes For Rows With Unique Potentials
+        self.checkCubesForRowsWithUniquePotentials()
+        self.checkAislesForMiniAislesWithUniquePotentials()
 
     def clean3By3s(self):
         for eachCube in range(9):
@@ -168,26 +172,92 @@ class board:
 #      if so, remove that potential from the other miniAisles on that Aisle
 # 3. MAKE SURE TO DO THE SAME THING FOR COLUMNS FOR BOTH!
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-# 
+
+# Check if miniAisle contains a potential that doesnt exist in the other 2 miniAisles of the aisle
+#      if so, remove that potential from the other miniAisles on that cube  
+    def checkAislesForMiniAislesWithUniquePotentials(self):
+        """ Read checkCubesForRowsWithUniquePotentials() """
+        # GetRowByMiniRows()
+        PuzzleByMiniRows = []
+        for eachRow in self.__AllCells:
+            SetOfMiniRows = []
+            SetOfMiniRows.append(eachRow[0:3])
+            SetOfMiniRows.append(eachRow[3:6])
+            SetOfMiniRows.append(eachRow[6:9])
+            PuzzleByMiniRows.append(SetOfMiniRows)
+        # print(PuzzleByMiniRows)
+
+        # ThreeByThreesByRow = self.getThreeByThreesByRows()
+        # ThreeByThreesByColumn = self.getThreeByThreesByColumns()
+        sudokuByRowsAndColumns = []
+        sudokuByRowsAndColumns.append(PuzzleByMiniRows)
+
+        for sudokuByAisleOfAisles in sudokuByRowsAndColumns:
+            for eachSubAisleOfAisle in range(3):
+                AisleOffset = 3*eachSubAisleOfAisle
+                for eachSubAisle in range(3):
+                    oneRubik = sudokuByAisleOfAisles[AisleOffset+eachSubAisle]
+                    potents = self.AislesOfPotentialsFromRubik(oneRubik)
+                    aisle = -1
+                    for eachPotentList in potents:
+                        aisle+=1
+                        # eachPotentList also represents each aisle of "eachSubAisle" 
+                        potentsCopy = potents.copy()
+                        potentsCopy.remove(eachPotentList)
+                        UniquePotentials = list(set(eachPotentList) - (set(potentsCopy[0]) | set(potentsCopy[1]) )  )
+                        if(len(UniquePotentials) > 0):
+                            print("Found a Unique Potential at Aisle: {}, MegaColumn: {}. Potential(s) Found: {}".format(AisleOffset+eachSubAisle,aisle,UniquePotentials))
+                            for x in range(3):
+                                if x != eachSubAisle: # dont do this to the rubik we found obviously
+                                    for eachNode in sudokuByAisleOfAisles[AisleOffset+x][aisle]:
+                                        self.removePotentialsFromCell(eachNode,UniquePotentials)
+                                        # print(eachNode.getValue())
+
 # Check if miniAisle contains a potential that doesnt exist in the other 2 miniAisles of the SAME rubik
 #      if so, remove that potential from the other miniAisles on that Aisle  
     def checkCubesForRowsWithUniquePotentials(self):
+        """
+        Should Calculate on 3 Rows or Aisles at a time. \n
+        If the unique potential is found in the Capital Letter aisle,\n
+        remove that potential from the corresponding lowercase aisle.\n
+        The capital letter Rubik can move across the lowerase one \n
+                         or \n
+        [A,A,A,a,a,a,a,a,a]  [A,B,C,x,x,x,x,x,x] \n
+        [B,B,B,b,b,b,b,b,b]  [A,B,C,x,x,x,x,x,x] \n
+        [C,C,C,c,c,c,c,c,c]  [A,B,C,x,x,x,x,x,x] \n
+        [x,x,x,x,x,x,x,x,x]  [a,b,c,x,x,x,x,x,x] \n
+        [x,x,x,x,x,x,x,x,x]  [a,b,c,x,x,x,x,x,x] \n
+        [x,x,x,x,x,x,x,x,x]  [a,b,c,x,x,x,x,x,x] \n
+        [x,x,x,x,x,x,x,x,x]  [a,b,c,x,x,x,x,x,x] \n
+        [x,x,x,x,x,x,x,x,x]  [a,b,c,x,x,x,x,x,x] \n
+        [x,x,x,x,x,x,x,x,x]  [a,b,c,x,x,x,x,x,x] \n
+        """
+        ThreeByThreesByRow = self.getThreeByThreesByRows()
+        ThreeByThreesByColumn = self.getThreeByThreesByColumns()
+        sudokuByRowsAndColumns = []
+        sudokuByRowsAndColumns.append(ThreeByThreesByRow)
+        sudokuByRowsAndColumns.append(ThreeByThreesByColumn)
+        for ThreeByThree in sudokuByRowsAndColumns:
+            for eachAisleOfRubiks in range(3):
+                AisleOffset = 3*eachAisleOfRubiks
+                for eachRubik in range(3):
+                    oneRubik = ThreeByThree[AisleOffset+eachRubik]
+                    potents = self.AislesOfPotentialsFromRubik(oneRubik)
+                    aisle = -1
+                    for eachPotentList in potents:
+                        aisle+=1
+                        # eachPotentList also represents each aisle of "eachRubik" 
+                        potentsCopy = potents.copy()
+                        potentsCopy.remove(eachPotentList)
+                        UniquePotentials = list(set(eachPotentList) - (set(potentsCopy[0]) | set(potentsCopy[1]) )  )
+                        if(len(UniquePotentials) > 0):
+                            print("Found a Unique Potential at Rubik: {}, Aisle: {}. Potential(s) Found: {}".format(AisleOffset+eachRubik,aisle,UniquePotentials))
+                            for x in range(3):
+                                if x != eachRubik: # dont do this to the rubik we found obviously
+                                    for eachNode in ThreeByThree[AisleOffset+x][aisle]:
+                                        self.removePotentialsFromCell(eachNode,UniquePotentials)
+                                        # print(eachNode.getValue())
 
-        ThreeByThrees = self.getThreeByThreesByRows()
-        for eachRubik in range(3):
-            oneRubik = ThreeByThrees[3+eachRubik]
-            potents = self.AislesOfPotentialsFromRubik(oneRubik)
-            row = -1
-            for eachPotentList in potents:
-                row+=1
-                # eachPotentList also represents each row of "eachRubik" 
-                potentsCopy = potents.copy()
-                potentsCopy.remove(eachPotentList)
-                UniquePotentials = list(set(eachPotentList) - (set(potentsCopy[0]) | set(potentsCopy[1]) )  )
-                if(len(UniquePotentials) > 0):
-                    print("Found a Unique Potential at Rubik: {}, Row: {}. Potential(s) Found: {}".format(eachRubik+3,row,UniquePotentials))
-            # return potents
-            print(potents)
 
     def AislesOfPotentialsFromRubik(self,rubik):
         """receieves a rubik aka 3x3 in the form of:\n
@@ -225,6 +295,21 @@ class board:
         #         print(y)
         #     print("~~~~~~~~~")
 
+    def getThreeByThreesByColumns(self):
+        """returns 9 Lists of 3 Lists"""
+        ListOf3x3s = []
+        # For each set of Three Full Rows Or Columns
+        for SetOfThreeRowsOrColumns in range(3):
+            # Init Variables for each code to run on each 3x9
+            aisle = 3*SetOfThreeRowsOrColumns #0,3,or 6
+            for each3x3 in range(3):
+                ThreeByThree = []
+                parseStart = each3x3*3
+                parseEnd = parseStart+3
+                for eachMiniAisle in range(3):
+                    ThreeByThree.append(self.getColumn(aisle+eachMiniAisle)[parseStart:parseEnd])
+                ListOf3x3s.append(ThreeByThree)
+        return ListOf3x3s
 
 
 
