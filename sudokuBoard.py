@@ -178,6 +178,8 @@ class board:
     def checkAislesForMiniAislesWithUniquePotentials(self):
         """ Read checkCubesForRowsWithUniquePotentials() """
         # GetRowByMiniRows()
+
+        MAKE THIS A FUNCTION THEN MAKE THIS FUNCTION WORK WITH COLUMNS TOO!!!!!!!
         PuzzleByMiniRows = []
         for eachRow in self.__AllCells:
             SetOfMiniRows = []
@@ -185,6 +187,7 @@ class board:
             SetOfMiniRows.append(eachRow[3:6])
             SetOfMiniRows.append(eachRow[6:9])
             PuzzleByMiniRows.append(SetOfMiniRows)
+
         # print(PuzzleByMiniRows)
 
         # ThreeByThreesByRow = self.getThreeByThreesByRows()
